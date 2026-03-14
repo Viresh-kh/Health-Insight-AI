@@ -1,0 +1,19 @@
+packages:
+  "framer-motion": "For page transitions, multi-step form animations, and complex micro-interactions"
+  "recharts": "For rendering health score breakdown charts and vitals trend lines"
+  "clsx": "Utility for constructing className strings conditionally"
+  "tailwind-merge": "Utility for merging Tailwind classes safely"
+  "date-fns": "For formatting vitals history dates elegantly"
+
+images:
+  - path: "artifacts/healthcheck-ai/public/images/hero-bg.png"
+    description: "Abstract bright clean medical technology background with soft glowing cyan, teal, and blue gradients, glassmorphism elements, minimal, premium quality, 3D soft shapes"
+    aspect_ratio: "16:9"
+  - path: "artifacts/healthcheck-ai/public/images/health-score.png"
+    description: "Abstract 3D health and wellness concept illustration, bright clean medical style, floating teal and emerald spheres and vital signs motifs, soft studio lighting"
+    aspect_ratio: "1:1"
+
+notes:
+  - Using generated API hooks from @workspace/api-client-react
+  - Implementing multi-step local state for the assessment wizard
+  - Using Recharts for all data visualization needs

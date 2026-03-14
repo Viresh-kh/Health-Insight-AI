@@ -1,15 +1,20 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: HealthCheck AI API specification
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: assessment
+    description: Health assessment operations
+  - name: vitals
+    description: Vital signs tracking
+  - name: tips
+    description: Health tips
 paths:
   /healthz:
     get:
@@ -24,6 +29,105 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /assessments:
+    post:
+      operationId: createAssessment
+      tags: [assessment]
+      summary: Submit a health assessment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateAssessmentRequest"
+      responses:
+        "201":
+          description: Assessment created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AssessmentResult"
+    get:
+      operationId: listAssessments
+      tags: [assessment]
+      summary: List all assessments
+      responses:
+        "200":
+          description: List of assessments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AssessmentResult"
+
+  /assessments/{id}:
+    get:
+      operationId: getAssessment
+      tags: [assessment]
+      summary: Get assessment by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Assessment details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AssessmentResult"
+
+  /vitals:
+    post:
+      operationId: logVitals
+      tags: [vitals]
+      summary: Log vital signs
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateVitalsRequest"
+      responses:
+        "201":
+          description: Vitals logged
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VitalsEntry"
+    get:
+      operationId: listVitals
+      tags: [vitals]
+      summary: List vital signs history
+      responses:
+        "200":
+          description: Vitals history
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/VitalsEntry"
+
+  /tips:
+    get:
+      operationId: getHealthTips
+      tags: [tips]
+      summary: Get personalized health tips
+      responses:
+        "200":
+          description: Health tips
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/HealthTip"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +138,197 @@ components:
       required:
         - status
 
+    CreateAssessmentRequest:
+      type: object
+      properties:
+        age:
+          type: integer
+          minimum: 1
+          maximum: 120
+        gender:
+          type: string
+          enum: [male, female, other]
+        weight:
+          type: number
+          description: Weight in kg
+        height:
+          type: number
+          description: Height in cm
+        symptoms:
+          type: array
+          items:
+            type: string
+        lifestyle:
+          $ref: "#/components/schemas/LifestyleData"
+        medicalHistory:
+          type: array
+          items:
+            type: string
+      required:
+        - age
+        - gender
+        - weight
+        - height
+
+    LifestyleData:
+      type: object
+      properties:
+        smokingStatus:
+          type: string
+          enum: [never, former, current]
+        alcoholConsumption:
+          type: string
+          enum: [none, moderate, heavy]
+        exerciseFrequency:
+          type: string
+          enum: [sedentary, light, moderate, active, very_active]
+        sleepHours:
+          type: number
+        stressLevel:
+          type: integer
+          minimum: 1
+          maximum: 10
+        dietType:
+          type: string
+          enum: [omnivore, vegetarian, vegan, keto, mediterranean, other]
+      required:
+        - smokingStatus
+        - alcoholConsumption
+        - exerciseFrequency
+
+    AssessmentResult:
+      type: object
+      properties:
+        id:
+          type: integer
+        overallScore:
+          type: integer
+          minimum: 0
+          maximum: 100
+        bmi:
+          type: number
+        bmiCategory:
+          type: string
+        riskLevel:
+          type: string
+          enum: [low, moderate, high, critical]
+        recommendations:
+          type: array
+          items:
+            type: string
+        categoryScores:
+          $ref: "#/components/schemas/CategoryScores"
+        createdAt:
+          type: string
+          format: date-time
+        age:
+          type: integer
+        gender:
+          type: string
+        weight:
+          type: number
+        height:
+          type: number
+      required:
+        - id
+        - overallScore
+        - bmi
+        - bmiCategory
+        - riskLevel
+        - recommendations
+        - categoryScores
+        - createdAt
+        - age
+        - gender
+        - weight
+        - height
+
+    CategoryScores:
+      type: object
+      properties:
+        physical:
+          type: integer
+        mental:
+          type: integer
+        nutrition:
+          type: integer
+        sleep:
+          type: integer
+        lifestyle:
+          type: integer
+      required:
+        - physical
+        - mental
+        - nutrition
+        - sleep
+        - lifestyle
+
+    CreateVitalsRequest:
+      type: object
+      properties:
+        heartRate:
+          type: integer
+          description: Heart rate in bpm
+        systolicBP:
+          type: integer
+          description: Systolic blood pressure
+        diastolicBP:
+          type: integer
+          description: Diastolic blood pressure
+        temperature:
+          type: number
+          description: Temperature in Celsius
+        oxygenSaturation:
+          type: number
+          description: SpO2 percentage
+        bloodGlucose:
+          type: number
+          description: Blood glucose in mg/dL
+      required:
+        - heartRate
+
+    VitalsEntry:
+      type: object
+      properties:
+        id:
+          type: integer
+        heartRate:
+          type: integer
+        systolicBP:
+          type: integer
+        diastolicBP:
+          type: integer
+        temperature:
+          type: number
+        oxygenSaturation:
+          type: number
+        bloodGlucose:
+          type: number
+        recordedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - heartRate
+        - recordedAt
+
+    HealthTip:
+      type: object
+      properties:
+        id:
+          type: integer
+        category:
+          type: string
+          enum: [nutrition, exercise, sleep, mental_health, hydration, prevention]
+        title:
+          type: string
+        content:
+          type: string
+        icon:
+          type: string
+      required:
+        - id
+        - category
+        - title
+        - content
+        - icon
